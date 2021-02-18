@@ -30,3 +30,19 @@
 *.exe
 *.out
 *.app
+
+# etc
+*.db
+*.sqlite
+*.ipch
+*.opendb
+*.db-shm
+*.db-wal
+*.exp
+*.iobj
+*.ipdb
+*.pdb
+*.tlog
+.vs
+*.log
+*.recipe
