@@ -13,12 +13,6 @@
 using std::cout;
 #endif
 
-using std::string;
-using std::ofstream;
-using std::ifstream;
-using std::fstream;
-using std::vector;
-
 #ifndef SILVERBIN_EXPORTS
 #define SILVERBIN_API __declspec(dllexport)
 #else
@@ -29,22 +23,22 @@ using std::vector;
 class SILVERBIN_API SilverBinaryFile
 {
 private:
-	string filePath;
-	ifstream fileIn;
-	ofstream fileOut;
-	vector<unsigned char> currentBytes;
+	std::string filePath;
+	std::ifstream fileIn;
+	std::ofstream fileOut;
+	std::vector<unsigned char> currentBytes;
 	bool openIn();
 	bool openOut();
 public:
 	size_t position = 0;
 	void jump(size_t amt = 1);
 	void locate(size_t amt);
-	SilverBinaryFile(string filePath = "data.bin");
+	SilverBinaryFile(std::string filePath = "data.bin");
 	void clearPosition();
 	bool fetchBytes();
 	template <typename T>
 	T next(bool* status = nullptr);
-	string nextString(unsigned int max = 0xFF);
+	std::string nextString(unsigned int max = 0xFF);
 	template <typename T>
 	void insert(T item);
 };
@@ -59,10 +53,10 @@ inline T SilverBinaryFile::next(bool* status)
 		}
 		return (T)0;
 	}
-	
 	T x;
 	try {
 		x = parseUtils::getItemFromBytes<T>(&currentBytes[this->position]);
+		this->jump(sizeof(T));
 		return x;
 	}
 	catch (std::exception) {
@@ -70,26 +64,28 @@ inline T SilverBinaryFile::next(bool* status)
 		return (T)0;
 	}
 	if (status != nullptr) *status = true;
-	this->position += sizeof(T);
 	return x;
 }
+
+
 template<typename T>
 inline void SilverBinaryFile::insert(T item)
 {
 	this->fetchBytes();
 	this->fileIn.close();
 	this->openOut();
-	vector<byte> bytes = parseUtils::getBytes(item);
-	int ignore = -1;
+	std::vector<byte> bytes = parseUtils::getBytes(item);
+	bool written = false;
 	for (size_t pos = 0; pos < this->currentBytes.size(); pos++) {
 		if (pos == position) {
 #if __debug == true
 			cout << "7 ";
 #endif
-			for (unsigned int i = 0; i < bytes.size(); i++) {
+			written = true;
+			for (size_t i = 0; i < bytes.size(); i++) {
 				this->fileOut << bytes[i];
 			}
-			pos += sizeof(item) - 1;
+			pos += bytes.size();
 		}
 		else {
 #if __debug == true
@@ -97,6 +93,11 @@ inline void SilverBinaryFile::insert(T item)
 			cout << "set: #(" << pos << ") to: $(" << currentBytes[pos] << ") (" << (int)currentBytes[pos] << ")\n";
 #endif
 			this->fileOut << currentBytes[pos];
+		}
+	}
+	if (!written) {
+		for (size_t = 0; i < bytes.size(); i++) {
+			this->fileOut << bytes[i];
 		}
 	}
 	position += sizeof(item);

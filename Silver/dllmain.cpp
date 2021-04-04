@@ -11,6 +11,8 @@
 #define log std::cout
 #endif
 
+using std::string;
+
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
 #if __silver_test == true
@@ -37,13 +39,14 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 
             int wrapAround = bin.next<int>();
             log << "Back: " << wrapAround << '\n';
-            bin.jump(17);
+            bin.jump(12);
             string str = bin.nextString();
             log << "String: '" << str << "'\n";
 
             bin.clearPosition();
 
             bin.insert(wrapAround + 1);
+            if (out != nullptr) fclose(out);
         }
         catch (std::exception e) {
             log << "Error: " << e.what() << '\n';

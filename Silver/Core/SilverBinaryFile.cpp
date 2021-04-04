@@ -5,6 +5,12 @@
 
 typedef unsigned char byte;
 
+using std::string;
+using std::ofstream;
+using std::ifstream;
+using std::fstream;
+using std::vector;
+
 bool SilverBinaryFile::openIn()
 {
 	this->fileIn.open(filePath, std::ios::in | std::ios::binary);
